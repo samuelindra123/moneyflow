@@ -1,0 +1,22 @@
+# System & Tools
+.antigravitycli/
+.DS_Store
+Thumbs.db
+*.log
+
+# Dependencies & Build
+node_modules/
+.next/
+out/
+build/
+dist/
+.env*.local
+
+# Editor Configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
