@@ -35,3 +35,7 @@ dist/
 .roo
 .trae
 .windsurf
+
+# Archives
+*.zip
+

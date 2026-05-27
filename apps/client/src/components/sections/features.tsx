@@ -66,7 +66,7 @@ export function Features() {
                 <span className="text-xs font-bold text-slate-800">Liburan Ke Bali 🌴</span>
                 <span className="text-xs font-bold text-[#CC5A37]">83%</span>
               </div>
-              <div className="w-full bg-slate-250 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   whileInView={{ width: '83%' }}

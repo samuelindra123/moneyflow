@@ -28,7 +28,7 @@ export function Card({ children, className = '', hover = true, delay = 0 }: Card
       viewport={{ once: true, margin: '-50px' }}
       custom={delay}
       whileHover={hover ? { y: -4, transition: { duration: 0.2 } } : undefined}
-      className={`bg-white dark:bg-slate-900/60 dark:backdrop-blur-md rounded-2xl border border-slate-100 dark:border-slate-800/60 p-6 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-950/40 ${className}`}
+      className={`bg-white rounded-2xl border border-slate-100 p-6 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 ${className}`}
     >
       {children}
     </motion.div>
