@@ -87,7 +87,9 @@ export class OnboardingService {
       { username: dto.username },
     );
 
-    this.logger.log(`Onboarding completed for user: ${userId} (${dto.username})`);
+    this.logger.log(
+      `Onboarding completed for user: ${userId} (${dto.username})`,
+    );
 
     return {
       ...tokens,

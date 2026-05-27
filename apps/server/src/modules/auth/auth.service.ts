@@ -119,8 +119,9 @@ export class AuthService {
   }
 
   async generateAccessToken(userId: string, email: string): Promise<string> {
-    const accessExpiresIn =
-      (this.configService.get<string>('JWT_ACCESS_EXPIRES_IN') ?? '15m') as unknown as StringValue;
+    const accessExpiresIn = (this.configService.get<string>(
+      'JWT_ACCESS_EXPIRES_IN',
+    ) ?? '15m') as unknown as StringValue;
 
     return this.jwtService.sign(
       { sub: userId, email },
@@ -132,8 +133,9 @@ export class AuthService {
   }
 
   async generateTokens(userId: string, email: string): Promise<TokenPair> {
-    const refreshExpiresIn =
-      (this.configService.get<string>('JWT_REFRESH_EXPIRES_IN') ?? '7d') as unknown as StringValue;
+    const refreshExpiresIn = (this.configService.get<string>(
+      'JWT_REFRESH_EXPIRES_IN',
+    ) ?? '7d') as unknown as StringValue;
 
     const accessToken = await this.generateAccessToken(userId, email);
 
@@ -155,7 +157,9 @@ export class AuthService {
         ? (decoded as { exp?: unknown }).exp
         : undefined;
     const expiresAt =
-      typeof expSeconds === 'number' ? new Date(expSeconds * 1000) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      typeof expSeconds === 'number'
+        ? new Date(expSeconds * 1000)
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
     await this.prisma.refreshToken.create({
       data: {
@@ -201,7 +205,10 @@ export class AuthService {
     }
 
     // Verify token hash
-    const isValid = await bcrypt.compare(refreshToken, storedToken.hashed_token);
+    const isValid = await bcrypt.compare(
+      refreshToken,
+      storedToken.hashed_token,
+    );
     if (!isValid) {
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -224,7 +231,9 @@ export class AuthService {
     await this.prisma.refreshToken.deleteMany({
       where: { user_id: userId },
     });
-    this.logger.log(`User logged out, all refresh tokens invalidated: ${userId}`);
+    this.logger.log(
+      `User logged out, all refresh tokens invalidated: ${userId}`,
+    );
   }
 
   async createAuditLog(
@@ -238,7 +247,7 @@ export class AuthService {
         user_id: userId,
         action,
         ip_address: ipAddress,
-        metadata: metadata as Prisma.InputJsonValue ?? undefined,
+        metadata: (metadata as Prisma.InputJsonValue) ?? undefined,
       },
     });
   }

@@ -29,7 +29,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
         const res = exceptionResponse as Record<string, unknown>;
         message = (res['message'] as string) || exception.message;
         if (Array.isArray(res['message'])) {
@@ -51,7 +54,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : undefined,
       );
     } else {
-      this.logger.warn(`${request.method} ${request.url} - ${status}: ${message}`);
+      this.logger.warn(
+        `${request.method} ${request.url} - ${status}: ${message}`,
+      );
     }
 
     response.status(status).json({

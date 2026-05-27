@@ -69,7 +69,7 @@ async function bootstrap() {
   });
 
   app.use(httpLogger);
-  app.useLogger(new PinoNestLogger(httpLogger.logger as unknown as PinoLikeLogger));
+  app.useLogger(new PinoNestLogger(httpLogger.logger));
 
   // 1. Helmet — security headers
   app.use(helmet());
@@ -78,7 +78,8 @@ async function bootstrap() {
   const corsOrigins = configService
     .getOrThrow<string>('CORS_ORIGINS')
     .split(',')
-    .map((origin) => origin.trim());
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
   app.enableCors({
     origin: corsOrigins,

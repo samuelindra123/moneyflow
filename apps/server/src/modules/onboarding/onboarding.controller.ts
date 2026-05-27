@@ -28,7 +28,10 @@ import { OnboardingService } from './onboarding.service.js';
 import { CompleteOnboardingDto } from './dto/complete-onboarding.dto.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
-import { imageFileFilter, MAX_FILE_SIZE } from '../uploads/utils/file-filter.util.js';
+import {
+  imageFileFilter,
+  MAX_FILE_SIZE,
+} from '../uploads/utils/file-filter.util.js';
 
 const ACCESS_TOKEN_COOKIE = 'access_token';
 const REFRESH_TOKEN_COOKIE = 'refresh_token';
@@ -68,7 +71,10 @@ export class OnboardingController {
     };
   }
 
-  private setAuthCookies(res: Response, tokens: { access_token: string; refresh_token: string }) {
+  private setAuthCookies(
+    res: Response,
+    tokens: { access_token: string; refresh_token: string },
+  ) {
     const accessTtl = durationToMs(
       this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '15m'),
     );
@@ -76,8 +82,16 @@ export class OnboardingController {
       this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
     );
 
-    res.cookie(ACCESS_TOKEN_COOKIE, tokens.access_token, this.getCookieOptions(accessTtl));
-    res.cookie(REFRESH_TOKEN_COOKIE, tokens.refresh_token, this.getCookieOptions(refreshTtl));
+    res.cookie(
+      ACCESS_TOKEN_COOKIE,
+      tokens.access_token,
+      this.getCookieOptions(accessTtl),
+    );
+    res.cookie(
+      REFRESH_TOKEN_COOKIE,
+      tokens.refresh_token,
+      this.getCookieOptions(refreshTtl),
+    );
   }
 
   @Get('status')
@@ -114,7 +128,10 @@ export class OnboardingController {
       },
     },
   })
-  @ApiResponse({ status: 200, description: 'Onboarding completed, tokens returned' })
+  @ApiResponse({
+    status: 200,
+    description: 'Onboarding completed, tokens returned',
+  })
   @ApiResponse({ status: 400, description: 'Validation error' })
   @ApiResponse({ status: 409, description: 'Username already taken' })
   async completeOnboarding(

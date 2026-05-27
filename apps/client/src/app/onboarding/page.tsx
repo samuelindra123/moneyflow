@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, Upload, Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
+import { getBackendUrl } from '@/lib/api';
 
 export default function OnboardingPage() {
   const [fullName, setFullName] = useState('');
@@ -25,7 +26,7 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const backendUrl = getBackendUrl();
 
   // Live username availability check
   useEffect(() => {

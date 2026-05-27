@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
 
@@ -15,8 +19,12 @@ export class UploadsService {
       region: this.configService.getOrThrow<string>('INSFORGE_S3_REGION'),
       endpoint: this.configService.getOrThrow<string>('INSFORGE_S3_ENDPOINT'),
       credentials: {
-        accessKeyId: this.configService.getOrThrow<string>('INSFORGE_S3_ACCESS_KEY_ID'),
-        secretAccessKey: this.configService.getOrThrow<string>('INSFORGE_S3_SECRET_ACCESS_KEY'),
+        accessKeyId: this.configService.getOrThrow<string>(
+          'INSFORGE_S3_ACCESS_KEY_ID',
+        ),
+        secretAccessKey: this.configService.getOrThrow<string>(
+          'INSFORGE_S3_SECRET_ACCESS_KEY',
+        ),
       },
     });
   }
@@ -28,7 +36,9 @@ export class UploadsService {
   ): Promise<string> {
     const ext = path.extname(originalname).toLowerCase();
     const filename = `avatars/${randomUUID()}${ext}`;
-    const bucket = this.configService.getOrThrow<string>('INSFORGE_S3_BUCKET_AVATARS');
+    const bucket = this.configService.getOrThrow<string>(
+      'INSFORGE_S3_BUCKET_AVATARS',
+    );
 
     await this.s3Client.send(
       new PutObjectCommand({
@@ -39,7 +49,9 @@ export class UploadsService {
       }),
     );
 
-    const baseUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+    const baseUrl = this.configService.getOrThrow<string>(
+      'INSFORGE_PUBLIC_STORAGE_URL',
+    );
     const publicUrl = `${baseUrl}/${bucket}/objects/${filename}`;
 
     this.logger.log(`Avatar uploaded: ${filename}`);
@@ -48,8 +60,12 @@ export class UploadsService {
 
   async deleteAvatar(avatarUrl: string): Promise<void> {
     try {
-      const bucket = this.configService.getOrThrow<string>('INSFORGE_S3_BUCKET_AVATARS');
-      const baseUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+      const bucket = this.configService.getOrThrow<string>(
+        'INSFORGE_S3_BUCKET_AVATARS',
+      );
+      const baseUrl = this.configService.getOrThrow<string>(
+        'INSFORGE_PUBLIC_STORAGE_URL',
+      );
       const key = avatarUrl.replace(`${baseUrl}/${bucket}/objects/`, '');
 
       await this.s3Client.send(

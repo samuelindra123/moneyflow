@@ -78,7 +78,10 @@ export class AuthController {
     };
   }
 
-  private setAuthCookies(res: Response, tokens: { access_token: string; refresh_token?: string }) {
+  private setAuthCookies(
+    res: Response,
+    tokens: { access_token: string; refresh_token?: string },
+  ) {
     const accessTtl = durationToMs(
       this.configService.get<string>('JWT_ACCESS_EXPIRES_IN', '15m'),
     );
@@ -86,7 +89,11 @@ export class AuthController {
       this.configService.get<string>('JWT_REFRESH_EXPIRES_IN', '7d'),
     );
 
-    res.cookie(ACCESS_TOKEN_COOKIE, tokens.access_token, this.getCookieOptions(accessTtl));
+    res.cookie(
+      ACCESS_TOKEN_COOKIE,
+      tokens.access_token,
+      this.getCookieOptions(accessTtl),
+    );
 
     if (tokens.refresh_token) {
       res.cookie(
@@ -105,7 +112,9 @@ export class AuthController {
   }
 
   @Get('google')
-  @ApiOperation({ summary: 'Initiate Google OAuth login via InsForge Shared Key' })
+  @ApiOperation({
+    summary: 'Initiate Google OAuth login via InsForge Shared Key',
+  })
   @ApiResponse({ status: 302, description: 'Redirect to Google OAuth' })
   async googleAuth(@Res() res: Response): Promise<void> {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
@@ -116,18 +125,28 @@ export class AuthController {
       .toString('base64url');
 
     // Store verifier in an HTTP-only cookie
-    res.cookie('oauth_verifier', codeVerifier, this.getCookieOptions(10 * 60 * 1000)); // 10 mins
+    res.cookie(
+      'oauth_verifier',
+      codeVerifier,
+      this.getCookieOptions(10 * 60 * 1000),
+    ); // 10 mins
 
-    const callbackUrl = this.configService.getOrThrow<string>('GOOGLE_CALLBACK_URL');
-    const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+    const callbackUrl = this.configService.getOrThrow<string>(
+      'GOOGLE_CALLBACK_URL',
+    );
+    const storageUrl = this.configService.getOrThrow<string>(
+      'INSFORGE_PUBLIC_STORAGE_URL',
+    );
     const insforgeBaseUrl = new URL(storageUrl).origin;
 
     const initiateUrl = `${insforgeBaseUrl}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(callbackUrl)}&code_challenge=${codeChallenge}`;
-    
+
     try {
       const response = await fetch(initiateUrl);
       if (!response.ok) {
-        throw new Error(`InsForge OAuth initiation failed: ${response.statusText}`);
+        throw new Error(
+          `InsForge OAuth initiation failed: ${response.statusText}`,
+        );
       }
       const data: any = await response.json();
       res.redirect(data.authUrl);
@@ -137,7 +156,7 @@ export class AuthController {
         error: {
           code: 'OAUTH_INIT_ERROR',
           message: error.message || 'Failed to initiate Google OAuth',
-        }
+        },
       });
     }
   }
@@ -159,7 +178,9 @@ export class AuthController {
       throw new BadRequestException('OAuth verifier is missing or expired');
     }
 
-    const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+    const storageUrl = this.configService.getOrThrow<string>(
+      'INSFORGE_PUBLIC_STORAGE_URL',
+    );
     const insforgeBaseUrl = new URL(storageUrl).origin;
 
     // Exchange code for profile
@@ -204,7 +225,9 @@ export class AuthController {
 
     await this.authService.createAuditLog('LOGIN_GOOGLE', user.id, ip);
 
-    const hasCompletedOnboarding = Boolean(user.onboarding_complete && user.username);
+    const hasCompletedOnboarding = Boolean(
+      user.onboarding_complete && user.username,
+    );
 
     if (hasCompletedOnboarding) {
       // Issue full tokens (access + refresh) and redirect to dashboard
@@ -217,7 +240,10 @@ export class AuthController {
     }
 
     // Pre-onboarding: issue TEMP access token only (NO refresh token)
-    const accessToken = await this.authService.generateAccessToken(user.id, user.email);
+    const accessToken = await this.authService.generateAccessToken(
+      user.id,
+      user.email,
+    );
     this.setAuthCookies(res, { access_token: accessToken });
 
     const redirectUrl = new URL('/onboarding', frontendUrl);
@@ -235,12 +261,16 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<{ access_token: string; refresh_token: string }> {
-    const refreshToken = dto.refresh_token ?? getCookie(req, REFRESH_TOKEN_COOKIE);
+    const refreshToken =
+      dto.refresh_token ?? getCookie(req, REFRESH_TOKEN_COOKIE);
     if (!refreshToken) {
       throw new BadRequestException('Refresh token is required');
     }
 
-    const tokens = await this.authService.refreshTokens(refreshToken, req.ip ?? null);
+    const tokens = await this.authService.refreshTokens(
+      refreshToken,
+      req.ip ?? null,
+    );
     this.setAuthCookies(res, tokens);
     return tokens;
   }

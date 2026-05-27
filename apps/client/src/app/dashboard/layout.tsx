@@ -18,6 +18,7 @@ import {
   Calendar
 } from 'lucide-react';
 import Link from 'next/link';
+import { getBackendUrl } from '@/lib/api';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -44,7 +45,7 @@ export default function DashboardLayout({
   const [userProfile, setUserProfile] = useState<UserData | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const backendUrl = getBackendUrl();
 
   // Initialize theme from localStorage
   useEffect(() => {

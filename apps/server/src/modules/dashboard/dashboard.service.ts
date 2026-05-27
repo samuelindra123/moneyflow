@@ -45,7 +45,9 @@ export class DashboardService {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const monthlyExpenses = transactions
-      .filter((t: any) => t.type === 'EXPENSE' && new Date(t.date) >= startOfMonth)
+      .filter(
+        (t: any) => t.type === 'EXPENSE' && new Date(t.date) >= startOfMonth,
+      )
       .reduce((sum: number, t: any) => sum + t.amount, 0);
 
     // Fetch savings goals
@@ -57,7 +59,8 @@ export class DashboardService {
     // Auto-allocate total balance to active savings targets chronologically
     let remainingBalance = Math.max(0, totalBalance);
     const sortedForAllocation = [...savingsTargets].sort(
-      (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      (a: any, b: any) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     );
     const allocatedMap = new Map<string, number>();
     for (const target of sortedForAllocation) {

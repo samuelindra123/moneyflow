@@ -43,9 +43,14 @@ describe('AppController (e2e)', () => {
     });
 
     try {
-      const testToken = await authService.generateAccessToken(testUser.id, testUser.email);
+      const testToken = await authService.generateAccessToken(
+        testUser.id,
+        testUser.email,
+      );
       // Valid PNG file signature: 89 50 4E 47 0D 0A 1A 0A
-      const mockImage = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+      const mockImage = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      ]);
 
       const res = await request(app.getHttpServer())
         .post('/uploads/avatar')
@@ -56,7 +61,7 @@ describe('AppController (e2e)', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.avatar_url).toBeDefined();
       expect(res.body.data.avatar_url).toContain('https://');
-      
+
       console.log('Uploaded Avatar URL (PNG):', res.body.data.avatar_url);
     } finally {
       // Clean up the temporary user
@@ -78,7 +83,10 @@ describe('AppController (e2e)', () => {
     });
 
     try {
-      const testToken = await authService.generateAccessToken(testUser.id, testUser.email);
+      const testToken = await authService.generateAccessToken(
+        testUser.id,
+        testUser.email,
+      );
       // GIF signature: GIF89a
       const mockImage = Buffer.from('GIF89a');
 

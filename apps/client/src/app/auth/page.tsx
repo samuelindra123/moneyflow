@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Wallet, ArrowLeft, Shield, Sparkles, Cloud, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
+import { getBackendUrl } from '@/lib/api';
 import Link from 'next/link';
 
 export default function AuthPage() {
@@ -91,8 +91,7 @@ export default function AuthPage() {
               whileHover={{ scale: 1.015 }}
               whileTap={{ scale: 0.985 }}
               onClick={() => {
-                const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-                window.location.href = `${backendUrl}/auth/google`;
+                window.location.href = `${getBackendUrl()}/auth/google`;
               }}
               className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-slate-200 hover:border-slate-300"
             >

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
+import { getBackendUrl } from '@/lib/api';
 
 interface DashboardUserData {
   id: string;
@@ -101,7 +102,7 @@ export default function DashboardPage({ params }: { params: Promise<{ username: 
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  const backendUrl = getBackendUrl();
 
   const fetchDashboard = async () => {
     try {

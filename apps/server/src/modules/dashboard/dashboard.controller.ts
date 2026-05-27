@@ -1,4 +1,10 @@
-import { Controller, ForbiddenException, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -20,7 +26,10 @@ export class DashboardController {
 
   @Get(':username')
   @ApiOperation({ summary: 'Get user dashboard data' })
-  @ApiParam({ name: 'username', description: 'Username to fetch dashboard for' })
+  @ApiParam({
+    name: 'username',
+    description: 'Username to fetch dashboard for',
+  })
   @ApiResponse({ status: 200, description: 'Dashboard data' })
   @ApiResponse({ status: 403, description: 'Onboarding required' })
   @ApiResponse({ status: 404, description: 'User not found' })

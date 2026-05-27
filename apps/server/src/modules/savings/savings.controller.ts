@@ -1,5 +1,18 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { SavingsService } from './savings.service.js';
@@ -32,10 +45,7 @@ export class SavingsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a savings target' })
   @ApiResponse({ status: 200, description: 'Savings target deleted' })
-  async delete(
-    @CurrentUser('id') userId: string,
-    @Param('id') id: string,
-  ) {
+  async delete(@CurrentUser('id') userId: string, @Param('id') id: string) {
     return this.savingsService.delete(userId, id);
   }
 }

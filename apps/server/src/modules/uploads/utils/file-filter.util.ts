@@ -1,11 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 
-const ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-];
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 function startsWith(buffer: Buffer, signature: number[], offset = 0): boolean {
   if (buffer.length < signature.length + offset) return false;
@@ -33,7 +29,9 @@ function isWebp(buffer: Buffer): boolean {
   );
 }
 
-export function detectImageMime(buffer: Buffer): (typeof ALLOWED_MIME_TYPES)[number] | null {
+export function detectImageMime(
+  buffer: Buffer,
+): (typeof ALLOWED_MIME_TYPES)[number] | null {
   if (isJpeg(buffer)) return 'image/jpeg';
   if (isPng(buffer)) return 'image/png';
   if (isWebp(buffer)) return 'image/webp';
@@ -41,9 +39,22 @@ export function detectImageMime(buffer: Buffer): (typeof ALLOWED_MIME_TYPES)[num
 }
 
 const DANGEROUS_EXTENSIONS = [
-  '.exe', '.bat', '.cmd', '.sh', '.php', '.jsp',
-  '.asp', '.cgi', '.py', '.pl', '.rb', '.js',
-  '.html', '.htm', '.svg', '.xml',
+  '.exe',
+  '.bat',
+  '.cmd',
+  '.sh',
+  '.php',
+  '.jsp',
+  '.asp',
+  '.cgi',
+  '.py',
+  '.pl',
+  '.rb',
+  '.js',
+  '.html',
+  '.htm',
+  '.svg',
+  '.xml',
 ];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
