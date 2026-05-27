@@ -27,11 +27,145 @@ const subtitles = [
   { start: 114, end: 120, text: 'MoneyFlow ─ Dibuat dengan cinta oleh Samuel Indra Bastian.' },
 ];
 
+// Web Audio API Synthesizer Context
+let audioCtx: AudioContext | null = null;
+const getAudioContext = () => {
+  if (typeof window === 'undefined') return null;
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+};
+
+// Synth typing sound click
+const playTypingSound = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(350 + Math.random() * 150, ctx.currentTime);
+  gain.gain.setValueAtTime(0.006, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.03);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.03);
+};
+
+// Synth button mouse click sound
+const playClickSound = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(700, ctx.currentTime);
+  gain.gain.setValueAtTime(0.015, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.06);
+};
+
+// Synth success chime
+const playSuccessChime = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const playTone = (freq: number, delay: number, duration: number) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now + delay);
+    gain.gain.setValueAtTime(0.02, now + delay);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now + delay);
+    osc.stop(now + delay + duration);
+  };
+  playTone(523.25, 0, 0.4); // C5
+  playTone(659.25, 0.06, 0.4); // E5
+  playTone(783.99, 0.12, 0.5); // G5
+  playTone(1046.50, 0.18, 0.6); // C6
+};
+
+// Synth transition whoosh
+const playWhoosh = () => {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime + 0.4);
+  gain.gain.setValueAtTime(0.01, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.4);
+};
+
+// Cursor coordinates mapping based on timestamps (in percentage)
+const getCursorCoords = (t: number) => {
+  if (t < 13) return { x: '85%', y: '85%', click: false };
+  if (t === 13) return { x: '38%', y: '33%', click: false };
+  if (t === 14) return { x: '38%', y: '33%', click: true }; // Click name input
+  if (t < 21) return { x: '38%', y: '33%', click: false };  // Stay during name typing
+  if (t === 21) return { x: '38%', y: '53%', click: false };
+  if (t === 22) return { x: '38%', y: '53%', click: true }; // Click amount input
+  if (t < 27) return { x: '38%', y: '53%', click: false };  // Stay during amount typing
+  if (t === 27) return { x: '82%', y: '73%', click: false };
+  if (t === 28) return { x: '82%', y: '73%', click: true };  // Click Simpan
+  if (t < 32) return { x: '85%', y: '85%', click: false };
+  if (t < 45) return { x: '12%', y: '30%', click: false }; // Hover sidebar menu
+  if (t < 60) return { x: '45%', y: '42%', click: false }; // Hover savings progress
+  if (t < 75) return { x: '12%', y: '38%', click: false }; // Hover savings menu
+  if (t < 80) return { x: '45%', y: '65%', click: false }; // Hover chart bar 5
+  if (t < 88) return { x: '55%', y: '50%', click: false }; // Hover chart bar 6
+  if (t < 98) return { x: '65%', y: '58%', click: false }; // Hover chart bar 7
+  if (t < 114) return { x: '50%', y: '56%', click: false }; // Hover Outro CTA
+  return { x: '85%', y: '85%', click: false };
+};
+
 export function InteractiveDemo() {
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Smooth typing simulator states
+  const [typedName, setTypedName] = useState('');
+  const [typedAmount, setTypedAmount] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Phase computation
+  const getPhase = () => {
+    if (time < 12) return 'intro';
+    if (time < 36) return 'transaction';
+    if (time < 66) return 'savings';
+    if (time < 98) return 'analytics';
+    return 'outro';
+  };
+  const phase = getPhase();
+
+  // Watch for phase changes to play whoosh sound
+  const prevPhaseRef = useRef(phase);
+  useEffect(() => {
+    if (prevPhaseRef.current !== phase) {
+      if (isPlaying && phase !== 'intro') {
+        playWhoosh();
+      }
+      prevPhaseRef.current = phase;
+    }
+  }, [phase, isPlaying]);
+
+  // Main timer logic (seconds)
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {
@@ -52,6 +186,67 @@ export function InteractiveDemo() {
     };
   }, [isPlaying]);
 
+  // Sub-second smooth typing and sound trigger
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    // Reset simulator
+    if (time === 0) {
+      setTypedName('');
+      setTypedAmount('');
+      setIsSaved(false);
+    }
+
+    // Typing name simulation at t = 15s
+    if (time === 15) {
+      setTypedName('');
+      let i = 0;
+      const text = 'Kopi Susu Senja ☕';
+      const typingTimer = setInterval(() => {
+        if (i < text.length) {
+          setTypedName((prev) => prev + text.charAt(i));
+          playTypingSound();
+          i++;
+        } else {
+          clearInterval(typingTimer);
+        }
+      }, 110);
+      return () => clearInterval(typingTimer);
+    }
+
+    // Typing amount simulation at t = 23s
+    if (time === 23) {
+      setTypedAmount('');
+      let i = 0;
+      const text = '35.000';
+      const typingTimer = setInterval(() => {
+        if (i < text.length) {
+          setTypedAmount((prev) => prev + text.charAt(i));
+          playTypingSound();
+          i++;
+        } else {
+          clearInterval(typingTimer);
+        }
+      }, 140);
+      return () => clearInterval(typingTimer);
+    }
+
+    // Mouse click sound simulation for inputs
+    if (time === 14 || time === 22) {
+      playClickSound();
+    }
+
+    // Clicking "Simpan" and saving simulation at t = 28s
+    if (time === 28) {
+      playClickSound();
+      const saveTimer = setTimeout(() => {
+        playSuccessChime();
+        setIsSaved(true);
+      }, 300);
+      return () => clearTimeout(saveTimer);
+    }
+  }, [time, isPlaying]);
+
   // Format time (e.g. 75 -> "01:15")
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60).toString().padStart(2, '0');
@@ -60,32 +255,31 @@ export function InteractiveDemo() {
   };
 
   const handlePlayPause = () => {
+    // Unsuspend audio context on interaction
+    getAudioContext();
     setIsPlaying(!isPlaying);
   };
 
   const handleReset = () => {
+    getAudioContext();
     setTime(0);
+    setTypedName('');
+    setTypedAmount('');
+    setIsSaved(false);
     setIsPlaying(true);
   };
 
   // Find active subtitle
   const activeSubtitle = subtitles.find(s => time >= s.start && time < s.end)?.text || '';
 
-  // Determine active phase based on time
-  const getPhase = () => {
-    if (time < 12) return 'intro';
-    if (time < 36) return 'transaction';
-    if (time < 66) return 'savings';
-    if (time < 98) return 'analytics';
-    return 'outro';
-  };
-
-  const phase = getPhase();
+  // Get active cursor attributes
+  const activeCursor = getCursorCoords(time);
 
   return (
     <div className="w-full h-full flex flex-col bg-slate-950 text-white relative select-none">
-      {/* Video Display screen */}
-      <div className="flex-1 relative overflow-hidden flex items-center justify-center p-6 md:p-10 bg-gradient-to-b from-slate-900 to-slate-950">
+      
+      {/* Mac OS Desktop Simulator screen */}
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center p-4 md:p-8 bg-slate-900">
         
         {/* PHASE 0: INTRO */}
         <AnimatePresence mode="wait">
@@ -96,7 +290,7 @@ export function InteractiveDemo() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.5 }}
-              className="space-y-6 text-center max-w-lg"
+              className="space-y-6 text-center max-w-lg z-10"
             >
               <div className="w-16 h-16 bg-[#CC5A37] rounded-3xl flex items-center justify-center shadow-lg shadow-orange-500/20 mx-auto animate-pulse">
                 <Wallet className="w-8 h-8 text-white" />
@@ -110,154 +304,219 @@ export function InteractiveDemo() {
             </motion.div>
           )}
 
-          {/* PHASE 1: TRANSACTION ADD SIMULATION */}
-          {phase === 'transaction' && (
+          {/* SIMULATED MAC OS WINDOW FOR PRODUCT TOUR */}
+          {phase !== 'intro' && phase !== 'outro' && (
             <motion.div
-              key="transaction"
-              initial={{ opacity: 0, scale: 0.98 }}
+              key="mac-window"
+              initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden text-slate-800 flex flex-col h-72 md:h-80"
+              exit={{ opacity: 0, scale: 0.97 }}
+              className="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden text-slate-800 flex flex-col h-[340px] md:h-[380px] relative"
             >
-              {/* Header */}
-              <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                <div className="flex items-center gap-2">
+              {/* Mac Window Header / Safari bar */}
+              <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-[11px] font-semibold text-slate-400 select-none">
+                <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-400 block" />
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400 block" />
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 block" />
                 </div>
-                <span>Tambah Transaksi Baru</span>
+                <div className="bg-slate-200/60 px-6 py-1 rounded-md text-[9px] text-slate-500 font-mono w-44 text-center">
+                  app.moneyflow.com
+                </div>
                 <div className="w-10" />
               </div>
 
-              {/* Form Simulator */}
-              <div className="p-6 md:p-8 flex-1 flex flex-col justify-between text-left">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Nama Transaksi</label>
-                    <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                      {/* Character typing simulator */}
-                      {time < 18 ? '' : time < 24 ? 'Kopi Susu Senja ☕'.substring(0, (time - 18) * 3) : 'Kopi Susu Senja ☕'}
-                      {isPlaying && time >= 18 && time < 24 && <span className="animate-pulse">|</span>}
+              {/* Mac Window Body / Simulated app workspace */}
+              <div className="flex-1 flex bg-slate-50/50 relative overflow-hidden">
+                
+                {/* Simulated Sidebar */}
+                <div className="w-40 bg-slate-900 text-slate-400 p-4 border-r border-slate-800 flex flex-col gap-6 text-[10px] justify-between">
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 text-white font-bold px-1">
+                      <div className="w-6 h-6 bg-[#CC5A37] rounded-lg flex items-center justify-center">
+                        <Wallet className="w-3 h-3 text-white" />
+                      </div>
+                      MoneyFlow
                     </div>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">Jumlah (Rp)</label>
-                    <div className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                      {/* Amount typing simulator */}
-                      {time < 24 ? '' : time < 29 ? '35.000'.substring(0, (time - 24) * 2) : '35.000'}
-                      {isPlaying && time >= 24 && time < 29 && <span className="animate-pulse">|</span>}
+                    <div className="space-y-1.5">
+                      <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition-all ${
+                        phase === 'transaction' ? 'text-white bg-slate-850' : 'text-slate-400'
+                      }`}>
+                        <Plus className="w-3.5 h-3.5" />
+                        Tambah Transaksi
+                      </div>
+                      <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition-all ${
+                        phase === 'savings' ? 'text-white bg-slate-850' : 'text-slate-400'
+                      }`}>
+                        <Target className="w-3.5 h-3.5 text-orange-400" />
+                        Target Nabung
+                      </div>
+                      <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-semibold transition-all ${
+                        phase === 'analytics' ? 'text-white bg-slate-850' : 'text-slate-400'
+                      }`}>
+                        <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
+                        Analisis Kas
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-4">
-                  {/* Simulate click on Simpan */}
+                {/* Simulated Content Frame */}
+                <div className="flex-1 bg-white p-6 relative flex flex-col h-full overflow-hidden">
+                  
+                  {/* TRANSACTION FORM SIMULATION SUB-PHASE */}
+                  {phase === 'transaction' && (
+                    <motion.div
+                      key="transaction-form"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex-1 flex flex-col justify-between text-left h-full"
+                    >
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Form Pengeluaran</h4>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Nama Transaksi</label>
+                          <div className={`w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold transition-all ${
+                            time >= 14 && time < 21 ? 'border-[#CC5A37] ring-2 ring-orange-500/10' : 'border-slate-200'
+                          }`}>
+                            {typedName}
+                            {isPlaying && time >= 15 && time < 21 && <span className="animate-pulse">|</span>}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Jumlah (Rp)</label>
+                          <div className={`w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold transition-all ${
+                            time >= 22 && time < 27 ? 'border-[#CC5A37] ring-2 ring-orange-500/10' : 'border-slate-200'
+                          }`}>
+                            {typedAmount}
+                            {isPlaying && time >= 23 && time < 27 && <span className="animate-pulse">|</span>}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4">
+                        <motion.div
+                          animate={isSaved ? { scale: [1, 0.95, 1], backgroundColor: ['#CC5A37', '#b04726', '#10b981'] } : {}}
+                          transition={{ duration: 0.3 }}
+                          className="px-6 py-2 bg-[#CC5A37] text-white text-xs font-bold rounded-xl shadow-sm cursor-pointer"
+                        >
+                          {isSaved ? 'Transaksi Tersimpan ✓' : 'Simpan Transaksi'}
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* SAVINGS PROGRESS SIMULATION SUB-PHASE */}
+                  {phase === 'savings' && (
+                    <motion.div
+                      key="savings-card"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex-1 flex flex-col justify-center text-left"
+                    >
+                      <div className="bg-slate-50 border border-slate-200/60 rounded-2xl p-6 space-y-4 max-w-sm mx-auto w-full">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center text-[#CC5A37]">
+                              <Target className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h3 className="text-sm font-serif font-bold text-slate-900">Liburan Ke Bali 🌴</h3>
+                              <p className="text-[10px] text-slate-400 font-medium">Target Impian Rumah Tangga</p>
+                            </div>
+                          </div>
+                          <span className="text-lg font-black text-[#CC5A37]">
+                            {time < 42 ? '50%' : time < 55 ? Math.min(83, 50 + Math.floor((time - 42) * 2.5)) + '%' : '83%'}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                            <motion.div
+                              initial={{ width: '50%' }}
+                              animate={{ width: time < 42 ? '50%' : time < 55 ? `${50 + (time - 42) * 2.5}%` : '83%' }}
+                              transition={{ ease: 'easeOut', duration: 0.5 }}
+                              className="bg-gradient-to-r from-[#CC5A37] to-[#E5954B] h-full rounded-full"
+                            />
+                          </div>
+                          <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                            <span>Kumpul: Rp 5.0jt</span>
+                            <span>Target: Rp 6.0jt</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* ANALYTICS SIMULATION SUB-PHASE */}
+                  {phase === 'analytics' && (
+                    <motion.div
+                      key="analytics-charts"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="flex-1 grid md:grid-cols-12 gap-6 items-center text-left"
+                    >
+                      <div className="md:col-span-8 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Arus Kas Mingguan</span>
+                          <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">
+                            <TrendingUp className="w-3.5 h-3.5" /> +15.4%
+                          </span>
+                        </div>
+                        {/* Bars */}
+                        <div className="flex items-end gap-3 h-28 pt-2">
+                          {[30, 45, 25, 60, 40, 75, 55].map((h, idx) => {
+                            const isHovered = (time < 80 && idx === 4) || (time >= 80 && time < 88 && idx === 5) || (time >= 88 && idx === 6);
+                            return (
+                              <div key={idx} className="flex-1 bg-slate-50 border border-slate-100 rounded-lg h-full relative overflow-hidden">
+                                <motion.div
+                                  initial={{ height: 0 }}
+                                  animate={{ height: `${h}%` }}
+                                  className={`absolute bottom-0 left-0 right-0 rounded-lg transition-colors ${
+                                    isHovered ? 'bg-[#CC5A37]' : 'bg-slate-350'
+                                  }`}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-4 border-l border-slate-100 pl-4 space-y-3">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Kategori Belanja</span>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-[11px] font-semibold">
+                            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#CC5A37] block" /> Makanan</span>
+                            <span className="text-slate-400">35%</span>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] font-semibold">
+                            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#E5954B] block" /> Jajan</span>
+                            <span className="text-slate-400">23%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* SIMULATED MAC OS POINTER/CURSOR */}
                   <motion.div
-                    animate={time >= 29 ? { scale: [1, 0.95, 1], backgroundColor: ['#CC5A37', '#b04726', '#10b981'] } : {}}
-                    transition={{ duration: 0.3 }}
-                    className="px-6 py-2.5 bg-[#CC5A37] text-white text-xs font-bold rounded-xl shadow-sm text-center flex items-center justify-center"
+                    animate={{ 
+                      left: activeCursor.x, 
+                      top: activeCursor.y,
+                      scale: activeCursor.click ? 0.8 : 1
+                    }}
+                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                    className="absolute z-50 pointer-events-none w-5.5 h-5.5 select-none"
+                    style={{ transform: 'translate(-2px, -2px)' }}
                   >
-                    {time >= 29 ? 'Tersimpan ✓' : 'Simpan Transaksi'}
+                    <svg viewBox="0 0 16 16" className="w-full h-full text-black fill-current drop-shadow-md">
+                      <path d="M0 0l5.3 12.5 2.2-4.2 4.2-2.2z" />
+                    </svg>
                   </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
-          {/* PHASE 2: TARGET NABUNG PROGRESS BAR */}
-          {phase === 'savings' && (
-            <motion.div
-              key="savings"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-8 text-slate-800 text-left space-y-6"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-50 border border-orange-100 rounded-xl flex items-center justify-center text-[#CC5A37]">
-                    <Target className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-serif font-bold text-slate-900">Liburan Ke Bali 🌴</h3>
-                    <p className="text-[10px] text-slate-400 font-medium">Target Impian Rumah Tangga</p>
-                  </div>
-                </div>
-                {/* Simulated dynamic progress numbers */}
-                <span className="text-xl font-black text-[#CC5A37]">
-                  {time < 50 ? '50%' : time < 58 ? Math.min(83, 50 + Math.floor((time - 50) * 4.2)) + '%' : '83%'}
-                </span>
-              </div>
-
-              <div className="space-y-2">
-                <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                  {/* Animated bar filling */}
-                  <motion.div
-                    initial={{ width: '50%' }}
-                    animate={{ width: time < 50 ? '50%' : time < 58 ? `${50 + (time - 50) * 4.2}%` : '83%' }}
-                    transition={{ ease: 'easeOut', duration: 0.5 }}
-                    className="bg-gradient-to-r from-[#CC5A37] to-[#E5954B] h-full rounded-full"
-                  />
-                </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                  <span>Terkumpul: Rp 5.000.000</span>
-                  <span>Target: Rp 6.000.000</span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* PHASE 3: GRAPHICS ANALYTICS */}
-          {phase === 'analytics' && (
-            <motion.div
-              key="analytics"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-xl p-6 md:p-8 text-slate-800 text-left grid md:grid-cols-12 gap-6"
-            >
-              {/* Cashflow column */}
-              <div className="md:col-span-8 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Arus Kas MINGGUAN</span>
-                  <span className="text-xs text-emerald-600 font-bold flex items-center gap-0.5">
-                    <TrendingUp className="w-3.5 h-3.5" /> +15.4%
-                  </span>
-                </div>
-                {/* Simulated Chart Bars */}
-                <div className="flex items-end gap-3 h-28 pt-2">
-                  {[30, 45, 25, 60, 40, 75, 55].map((h, i) => (
-                    <div key={i} className="flex-1 bg-slate-50 border border-slate-100 rounded-lg h-full relative overflow-hidden group">
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: time < 75 ? `${h}%` : `${h + Math.sin(time + i) * 6}%` }}
-                        transition={{ duration: 0.4 }}
-                        className={`absolute bottom-0 left-0 right-0 rounded-lg ${
-                          i === 5 ? 'bg-[#CC5A37]' : 'bg-slate-300'
-                        }`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Category stats info */}
-              <div className="md:col-span-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 space-y-4 flex flex-col justify-center">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kategori Belanja</span>
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#CC5A37] block" /> Makanan</span>
-                    <span className="text-slate-400">35%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#E5954B] block" /> Jajan</span>
-                    <span className="text-slate-400">23%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-400 block" /> Transport</span>
-                    <span className="text-slate-400">19%</span>
-                  </div>
                 </div>
               </div>
             </motion.div>
@@ -271,7 +530,7 @@ export function InteractiveDemo() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.5 }}
-              className="space-y-6 text-center max-w-lg"
+              className="space-y-6 text-center max-w-lg z-10"
             >
               <h2 className="text-3xl md:text-4xl font-serif font-light tracking-tight leading-tight">
                 Mulai Keuangan Sehatmu{' '}
@@ -297,14 +556,14 @@ export function InteractiveDemo() {
       </div>
 
       {/* Subtitles Display overlay */}
-      <div className="h-16 flex items-center justify-center px-6 border-t border-slate-900 bg-slate-950/80 text-center">
+      <div className="h-16 flex items-center justify-center px-6 border-t border-slate-900 bg-slate-950/80 text-center select-none">
         <p className="text-xs md:text-sm font-medium text-slate-300 max-w-2xl leading-relaxed select-text">
           {activeSubtitle || '...'}
         </p>
       </div>
 
       {/* Controls Bar */}
-      <div className="h-16 px-4 md:px-6 bg-slate-950 border-t border-slate-900 flex items-center justify-between text-slate-400">
+      <div className="h-16 px-4 md:px-6 bg-slate-950 border-t border-slate-900 flex items-center justify-between text-slate-400 select-none">
         
         {/* Play/Pause & Reset */}
         <div className="flex items-center gap-4">
