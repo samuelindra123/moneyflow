@@ -25,13 +25,13 @@ export default function AuthPage() {
   ];
 
   return (
-    <main className="relative min-h-screen bg-[#090D16] flex flex-col items-center justify-center px-4 py-16 overflow-hidden">
+    <main className="relative min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-16 overflow-hidden">
       {/* Decorative terracotta radial gradients */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#CC5A37] rounded-full blur-[120px] opacity-[0.15] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#E5954B] rounded-full blur-[120px] opacity-10 pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#CC5A37] rounded-full blur-[120px] opacity-[0.08] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-[#E5954B] rounded-full blur-[120px] opacity-[0.06] pointer-events-none" />
 
       {/* Grid line background overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00000003_1px,transparent_1px),linear-gradient(to_bottom,#00000003_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at 50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
       <div className="w-full max-w-[480px] z-10 space-y-8">
         {/* Brand Header */}
@@ -46,7 +46,7 @@ export default function AuthPage() {
             <div className="w-10 h-10 bg-[#CC5A37] rounded-xl flex items-center justify-center shadow-lg shadow-[#CC5A37]/20 group-hover:shadow-[#CC5A37]/40 transition-shadow">
               <Wallet className="w-5.5 h-5.5 text-white" />
             </div>
-            <span className="text-2xl font-serif font-bold text-white tracking-tight">MoneyFlow</span>
+            <span className="text-2xl font-serif font-bold text-slate-900 tracking-tight">MoneyFlow</span>
           </a>
         </motion.div>
 
@@ -56,14 +56,14 @@ export default function AuthPage() {
           initial="hidden"
           animate="visible"
           custom={0.1}
-          className="relative bg-slate-900/40 border border-slate-800/80 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl overflow-hidden"
+          className="relative bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-100/50 overflow-hidden"
         >
           {/* Card Top Terracotta Accent */}
           <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#CC5A37] to-transparent" />
 
           <div className="text-center space-y-2 mb-8">
-            <h1 className="text-2xl font-serif font-bold text-white">Selamat Datang</h1>
-            <p className="text-sm text-slate-400 font-light">Masuk untuk mulai mengelola keuanganmu secara lebih bijak.</p>
+            <h1 className="text-2xl font-serif font-bold text-slate-900">Selamat Datang</h1>
+            <p className="text-sm text-slate-500 font-light">Masuk untuk mulai mengelola keuanganmu secara lebih bijak.</p>
           </div>
 
           {/* Benefits list */}
@@ -76,8 +76,8 @@ export default function AuthPage() {
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                   <div className="text-left">
-                    <h4 className="text-xs font-bold text-slate-200">{benefit.title}</h4>
-                    <p className="text-[11px] text-slate-400 font-light leading-relaxed mt-0.5">{benefit.desc}</p>
+                    <h4 className="text-xs font-bold text-slate-800">{benefit.title}</h4>
+                    <p className="text-[11px] text-slate-500 font-light leading-relaxed mt-0.5">{benefit.desc}</p>
                   </div>
                 </div>
               );
@@ -92,7 +92,7 @@ export default function AuthPage() {
               onClick={() => {
                 alert('Fungsi autentikasi Google Login akan segera aktif saat integrasi backend selesai!');
               }}
-              className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold rounded-2xl shadow-lg shadow-white/5 transition-all duration-200 cursor-pointer border border-slate-200 hover:border-slate-300"
+              className="w-full flex items-center justify-center gap-3 px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-800 text-sm font-bold rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-slate-200 hover:border-slate-300"
             >
               {/* Google Vector SVG Icon */}
               <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
@@ -116,7 +116,7 @@ export default function AuthPage() {
               Masuk dengan Google
             </motion.button>
 
-            <div className="flex items-center gap-1.5 justify-center text-[10px] text-slate-500 font-medium">
+            <div className="flex items-center gap-1.5 justify-center text-[10px] text-slate-400 font-medium">
               <Shield className="w-3.5 h-3.5 text-[#CC5A37]" />
               <span>Kami menjaga privasi dan keamanan data Anda dengan enkripsi.</span>
             </div>
@@ -133,18 +133,18 @@ export default function AuthPage() {
         >
           <a
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Kembali ke Beranda
           </a>
 
-          <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
-            <a href="/privacy" className="hover:text-slate-300 transition-colors">
+          <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
+            <a href="/privacy" className="hover:text-slate-600 transition-colors">
               Kebijakan Privasi
             </a>
-            <span className="w-1 h-1 rounded-full bg-slate-800" />
-            <a href="/terms" className="hover:text-slate-300 transition-colors">
+            <span className="w-1 h-1 rounded-full bg-slate-350" />
+            <a href="/terms" className="hover:text-slate-600 transition-colors">
               Syarat & Ketentuan
             </a>
           </div>
