@@ -10,6 +10,9 @@ import { UsersModule } from './modules/users/users.module.js';
 import { OnboardingModule } from './modules/onboarding/onboarding.module.js';
 import { UploadsModule } from './modules/uploads/uploads.module.js';
 import { DashboardModule } from './modules/dashboard/dashboard.module.js';
+import { TransactionsModule } from './modules/transactions/transactions.module.js';
+import { SavingsModule } from './modules/savings/savings.module.js';
+import { BudgetsModule } from './modules/budgets/budgets.module.js';
 
 @Module({
   imports: [
@@ -44,6 +47,9 @@ import { DashboardModule } from './modules/dashboard/dashboard.module.js';
     OnboardingModule,
     UploadsModule,
     DashboardModule,
+    TransactionsModule,
+    SavingsModule,
+    BudgetsModule,
   ],
   controllers: [AppController],
   providers: [

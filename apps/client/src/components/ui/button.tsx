@@ -15,10 +15,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-[#4F46E5] text-white hover:bg-[#4338CA] shadow-lg shadow-indigo-500/25',
-  secondary: 'bg-[#06B6D4] text-white hover:bg-[#0891B2] shadow-lg shadow-cyan-500/25',
-  ghost: 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
-  outline: 'border border-slate-200 text-slate-700 hover:border-[#4F46E5] hover:text-[#4F46E5]',
+  primary: 'bg-[#CC5A37] text-white hover:bg-[#b04726] shadow-lg shadow-orange-500/10 dark:shadow-none',
+  secondary: 'bg-[#E5954B] text-white hover:bg-[#d07f35] shadow-lg shadow-amber-500/10 dark:shadow-none',
+  ghost: 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800',
+  outline: 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-[#CC5A37] hover:text-[#CC5A37] dark:hover:border-[#CC5A37] dark:hover:text-[#CC5A37]',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -36,28 +36,28 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     if (href) {
       const isInternal = href.startsWith('/') && !href.startsWith('//');
       if (isInternal) {
-        const linkProps = props as React.ComponentPropsWithoutRef<typeof MotionLink>;
+        const linkProps = props as any;
         return (
           <MotionLink
             href={href}
             className={classes}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={onClick as React.ComponentPropsWithoutRef<typeof MotionLink>['onClick']}
+            onClick={onClick as any}
             {...linkProps}
           >
             {children}
           </MotionLink>
         );
       }
-      const anchorProps = props as React.ComponentPropsWithoutRef<'a'>;
+      const anchorProps = props as any;
       return (
         <motion.a
           href={href}
           className={classes}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={onClick as React.ComponentPropsWithoutRef<'a'>['onClick']}
+          onClick={onClick as any}
           {...anchorProps}
         >
           {children}

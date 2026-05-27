@@ -22,6 +22,9 @@ model User {
   oauthAccounts  OauthAccount[]
   refreshTokens  RefreshToken[]
   auditLogs      AuditLog[]
+  transactions   Transaction[]
+  savingTargets  SavingTarget[]
+  budget         Budget?
 
   @@index([email])
   @@index([username])
@@ -69,4 +72,50 @@ model AuditLog {
   @@index([user_id])
   @@index([created_at])
   @@map("audit_logs")
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  user_id     String
+  amount      Float
+  type        String   // "INCOME" or "EXPENSE"
+  category    String
+  description String?
+  date        DateTime @default(now())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("transactions")
+}
+
+model SavingTarget {
+  id             String   @id @default(uuid())
+  user_id        String
+  name           String
+  target_amount  Float
+  current_amount Float    @default(0)
+  deadline       DateTime?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("saving_targets")
+}
+
+model Budget {
+  id           String   @id @default(uuid())
+  user_id      String   @unique
+  limit_amount Float
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("budgets")
 }
