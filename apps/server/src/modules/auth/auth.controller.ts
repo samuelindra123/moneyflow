@@ -19,8 +19,8 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 import { AuthService } from './auth.service.js';
-import { GoogleOAuthGuard } from './guards/google-oauth.guard.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
@@ -105,22 +105,84 @@ export class AuthController {
   }
 
   @Get('google')
-  @UseGuards(GoogleOAuthGuard)
-  @ApiOperation({ summary: 'Initiate Google OAuth login' })
+  @ApiOperation({ summary: 'Initiate Google OAuth login via InsForge Shared Key' })
   @ApiResponse({ status: 302, description: 'Redirect to Google OAuth' })
-  googleAuth(): void {
-    // Guard handles redirect
+  googleAuth(@Res() res: Response): void {
+    const codeVerifier = crypto.randomBytes(32).toString('base64url');
+    const codeChallenge = crypto
+      .createHash('sha256')
+      .update(codeVerifier)
+      .digest()
+      .toString('base64url');
+
+    // Store verifier in an HTTP-only cookie
+    res.cookie('oauth_verifier', codeVerifier, this.getCookieOptions(10 * 60 * 1000)); // 10 mins
+
+    const callbackUrl = this.configService.getOrThrow<string>('GOOGLE_CALLBACK_URL');
+    const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+    const insforgeBaseUrl = storageUrl.split('/storage/')[0];
+
+    const authUrl = `${insforgeBaseUrl}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(callbackUrl)}&code_challenge=${codeChallenge}`;
+    res.redirect(authUrl);
   }
 
   @Get('google/callback')
-  @UseGuards(GoogleOAuthGuard)
   @ApiOperation({ summary: 'Google OAuth callback' })
   @ApiResponse({ status: 302, description: 'Redirect to frontend with tokens' })
   async googleAuthCallback(
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<void> {
-    const user = req.user!;
+    const insforgeCode = req.query.insforge_code as string;
+    const codeVerifier = getCookie(req, 'oauth_verifier');
+
+    if (!insforgeCode) {
+      throw new BadRequestException('Authorization code is missing');
+    }
+    if (!codeVerifier) {
+      throw new BadRequestException('OAuth verifier is missing or expired');
+    }
+
+    const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
+    const insforgeBaseUrl = storageUrl.split('/storage/')[0];
+
+    // Exchange code for profile
+    const exchangeResponse = await fetch(
+      `${insforgeBaseUrl}/api/auth/oauth/exchange?client_type=server`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code: insforgeCode,
+          code_verifier: codeVerifier,
+        }),
+      },
+    );
+
+    if (!exchangeResponse.ok) {
+      const errorData = await exchangeResponse.json().catch(() => ({}));
+      throw new BadRequestException(
+        `Failed to exchange OAuth code: ${errorData.message || exchangeResponse.statusText}`,
+      );
+    }
+
+    const exchangeData: any = await exchangeResponse.json();
+    const googleUser = exchangeData.user;
+
+    // Clear the oauth_verifier cookie
+    res.clearCookie('oauth_verifier', { path: '/' });
+
+    // Validate and upsert user in our database
+    const user = await this.authService.validateOAuthUser({
+      email: googleUser.email,
+      provider: 'google',
+      providerAccountId: googleUser.id,
+      fullName: googleUser.profile?.name || undefined,
+      avatarUrl: googleUser.profile?.avatar_url || undefined,
+    });
+
     const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
     const ip = req.ip || req.socket.remoteAddress || null;
 

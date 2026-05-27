@@ -10,8 +10,8 @@ export const envValidationSchema = Joi.object({
 
   DATABASE_URL: Joi.string().required(),
 
-  GOOGLE_CLIENT_ID: Joi.string().required(),
-  GOOGLE_CLIENT_SECRET: Joi.string().required(),
+  GOOGLE_CLIENT_ID: Joi.string().optional().default(''),
+  GOOGLE_CLIENT_SECRET: Joi.string().optional().default(''),
   GOOGLE_CALLBACK_URL: Joi.string().uri().required(),
 
   JWT_ACCESS_SECRET: Joi.string().min(32).required(),
