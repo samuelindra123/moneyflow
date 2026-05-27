@@ -37,6 +37,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className={classes}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          {...(props as any)}
         >
           {children}
         </motion.a>

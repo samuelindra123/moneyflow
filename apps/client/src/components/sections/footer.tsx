@@ -34,6 +34,12 @@ export function Footer() {
               </svg>
               Twitter
             </a>
+            <a href="/privacy" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
+              Kebijakan Privasi
+            </a>
+            <a href="/terms" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
+              Syarat & Ketentuan
+            </a>
             <a href="mailto:samuel@moneyflow.com" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors font-medium">
               <Mail className="w-4 h-4" />
               Hubungi Kreator

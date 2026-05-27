@@ -130,8 +130,8 @@ export function Navbar() {
 
             {/* Desktop CTA */}
             <div className="hidden md:flex items-center gap-3">
-              <Button variant="ghost" size="sm">Masuk</Button>
-              <Button variant="primary" size="sm">Mulai Gratis</Button>
+              <Button variant="ghost" size="sm" href="/auth">Masuk</Button>
+              <Button variant="primary" size="sm" href="/auth">Mulai Gratis</Button>
             </div>
 
             {/* Mobile toggle */}
@@ -219,8 +219,8 @@ export function Navbar() {
               </a>
 
               <div className="pt-4 space-y-3 border-t border-slate-100 mt-4">
-                <Button variant="outline" size="md" className="w-full">Masuk</Button>
-                <Button variant="primary" size="md" className="w-full">Mulai Gratis</Button>
+                <Button variant="outline" size="md" className="w-full" href="/auth" onClick={() => setIsMobileMenuOpen(false)}>Masuk</Button>
+                <Button variant="primary" size="md" className="w-full" href="/auth" onClick={() => setIsMobileMenuOpen(false)}>Mulai Gratis</Button>
               </div>
             </div>
           </motion.div>
