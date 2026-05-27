@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ArrowRight, Play, TrendingUp, Wallet, Target, ShoppingCart, Coffee, Zap, DollarSign, LayoutDashboard, Calendar, Settings } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Play, TrendingUp, Wallet, Target, ShoppingCart, Coffee, Zap, DollarSign, LayoutDashboard, Calendar, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp, slideInRight, floatAnimation, floatAnimationSlow } from '@/lib/animations';
 
@@ -12,6 +13,8 @@ const transactions = [
 ];
 
 export function Hero() {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-16 md:py-32">
       {/* Background elements */}
@@ -72,7 +75,12 @@ export function Hero() {
                 Mulai Gratis
                 <ArrowRight className="w-5 h-5" />
               </Button>
-              <Button variant="outline" size="lg" className="px-8 py-4 font-medium">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 py-4 font-medium"
+                onClick={() => setIsDemoOpen(true)}
+              >
                 <Play className="w-5 h-5" />
                 Lihat Demo
               </Button>
@@ -249,6 +257,50 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
+
+      {/* Video Demo Modal */}
+      <AnimatePresence>
+        {isDemoOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop Blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDemoOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+            />
+
+            {/* Modal Body */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative w-full max-w-4xl bg-black rounded-3xl border border-slate-800 shadow-2xl overflow-hidden aspect-video z-10"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setIsDemoOpen(false)}
+                className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors cursor-pointer"
+                aria-label="Tutup video"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Video Player */}
+              <video
+                src="https://assets.mixkit.co/videos/preview/mixkit-financial-analytics-on-a-computer-screen-41719-large.mp4"
+                className="w-full h-full object-cover"
+                autoPlay
+                controls
+                loop
+                playsInline
+              />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
