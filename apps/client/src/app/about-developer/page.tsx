@@ -120,7 +120,7 @@ export default function AboutDeveloperPage() {
               <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold pt-4">
                 <span>Made with</span>
                 <Heart className="w-3.5 h-3.5 fill-[#CC5A37] text-[#CC5A37] animate-pulse" />
-                <span>in Batam, Indonesia</span>
+                <span>in Malang, Indonesia</span>
               </div>
             </motion.div>
           </div>
