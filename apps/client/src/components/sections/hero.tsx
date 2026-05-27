@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Play, TrendingUp, Wallet, Target, ShoppingCart, Coffee, Zap, DollarSign, LayoutDashboard, Calendar, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp, slideInRight, floatAnimation, floatAnimationSlow } from '@/lib/animations';
+import { InteractiveDemo } from '@/components/sections/interactive-demo';
 
 const transactions = [
   { name: 'Belanja Groceries', amount: -245000, icon: ShoppingCart, color: 'text-orange-500', bg: 'bg-orange-50' },
@@ -288,15 +289,8 @@ export function Hero() {
                 <X className="w-5 h-5" />
               </button>
 
-              {/* Video Player */}
-              <video
-                src="https://assets.mixkit.co/videos/preview/mixkit-financial-analytics-on-a-computer-screen-41719-large.mp4"
-                className="w-full h-full object-cover"
-                autoPlay
-                controls
-                loop
-                playsInline
-              />
+              {/* Interactive Code-based Walkthrough */}
+              <InteractiveDemo />
             </motion.div>
           </div>
         )}
