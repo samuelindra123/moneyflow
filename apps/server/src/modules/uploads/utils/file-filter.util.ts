@@ -5,7 +5,6 @@ const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
   'image/webp',
-  'image/gif',
 ];
 
 function startsWith(buffer: Buffer, signature: number[], offset = 0): boolean {
@@ -26,14 +25,6 @@ function isPng(buffer: Buffer): boolean {
   return startsWith(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 }
 
-function isGif(buffer: Buffer): boolean {
-  // GIF87a or GIF89a
-  return (
-    startsWith(buffer, [0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) ||
-    startsWith(buffer, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
-  );
-}
-
 function isWebp(buffer: Buffer): boolean {
   // WEBP is RIFF container with "WEBP" at offset 8
   return (
@@ -46,7 +37,6 @@ export function detectImageMime(buffer: Buffer): (typeof ALLOWED_MIME_TYPES)[num
   if (isJpeg(buffer)) return 'image/jpeg';
   if (isPng(buffer)) return 'image/png';
   if (isWebp(buffer)) return 'image/webp';
-  if (isGif(buffer)) return 'image/gif';
   return null;
 }
 
