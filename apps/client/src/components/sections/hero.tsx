@@ -278,7 +278,7 @@ export function Hero() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="relative w-full max-w-4xl bg-black rounded-3xl border border-slate-800 shadow-2xl overflow-hidden aspect-video z-10"
+              className="relative w-full max-w-6xl bg-black rounded-3xl border border-slate-800 shadow-2xl overflow-hidden aspect-video z-10"
             >
               {/* Close Button */}
               <button
