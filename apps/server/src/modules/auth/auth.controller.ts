@@ -107,7 +107,7 @@ export class AuthController {
   @Get('google')
   @ApiOperation({ summary: 'Initiate Google OAuth login via InsForge Shared Key' })
   @ApiResponse({ status: 302, description: 'Redirect to Google OAuth' })
-  googleAuth(@Res() res: Response): void {
+  async googleAuth(@Res() res: Response): Promise<void> {
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
       .createHash('sha256')
@@ -122,8 +122,24 @@ export class AuthController {
     const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
     const insforgeBaseUrl = storageUrl.split('/storage/')[0];
 
-    const authUrl = `${insforgeBaseUrl}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(callbackUrl)}&code_challenge=${codeChallenge}`;
-    res.redirect(authUrl);
+    const initiateUrl = `${insforgeBaseUrl}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(callbackUrl)}&code_challenge=${codeChallenge}`;
+    
+    try {
+      const response = await fetch(initiateUrl);
+      if (!response.ok) {
+        throw new Error(`InsForge OAuth initiation failed: ${response.statusText}`);
+      }
+      const data: any = await response.json();
+      res.redirect(data.authUrl);
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'OAUTH_INIT_ERROR',
+          message: error.message || 'Failed to initiate Google OAuth',
+        }
+      });
+    }
   }
 
   @Get('google/callback')
