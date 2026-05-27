@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import Link from 'next/link';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -27,16 +28,33 @@ const sizeStyles: Record<ButtonSize, string> = {
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', className = '', href, children, ...props }, ref) => {
+  ({ variant = 'primary', size = 'md', className = '', href, children, onClick, ...props }, ref) => {
     const classes = `inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 cursor-pointer ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
 
     if (href) {
+      const isInternal = href.startsWith('/') && !href.startsWith('//');
+      if (isInternal) {
+        return (
+          <Link href={href} passHref legacyBehavior>
+            <motion.a
+              className={classes}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onClick as any}
+              {...(props as any)}
+            >
+              {children}
+            </motion.a>
+          </Link>
+        );
+      }
       return (
         <motion.a
           href={href}
           className={classes}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          onClick={onClick as any}
           {...(props as any)}
         >
           {children}
@@ -50,6 +68,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={classes}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        onClick={onClick}
         {...(props as React.ComponentPropsWithoutRef<typeof motion.button>)}
       >
         {children}

@@ -72,7 +72,7 @@ export function Hero() {
               custom={0.3}
               className="flex flex-col sm:flex-row gap-4 pt-2"
             >
-              <Button variant="primary" size="lg" className="px-8 py-4 font-medium">
+              <Button variant="primary" size="lg" href="/auth" className="px-8 py-4 font-medium">
                 Mulai Gratis
                 <ArrowRight className="w-5 h-5" />
               </Button>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Wallet, ChevronDown, Target, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const dropdownItems = [
   {
@@ -49,12 +50,12 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <a href="/" className="flex items-center gap-2 group">
+            <Link href="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 bg-[#CC5A37] rounded-xl flex items-center justify-center shadow-lg shadow-[#CC5A37]/20 group-hover:shadow-[#CC5A37]/40 transition-shadow">
                 <Wallet className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-serif font-bold text-slate-900 tracking-tight">MoneyFlow</span>
-            </a>
+            </Link>
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-1 relative">
@@ -86,7 +87,7 @@ export function Navbar() {
                       {dropdownItems.map((item) => {
                         const Icon = item.icon;
                         return (
-                          <a
+                          <Link
                             key={item.label}
                             href={item.href}
                             onClick={() => setIsDropdownOpen(false)}
@@ -103,7 +104,7 @@ export function Navbar() {
                                 {item.description}
                               </span>
                             </div>
-                          </a>
+                          </Link>
                         );
                       })}
                     </motion.div>
@@ -112,20 +113,20 @@ export function Navbar() {
               </div>
 
               {/* News link next to it */}
-              <a
+              <Link
                 href="/news"
                 className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#CC5A37] transition-colors rounded-lg hover:bg-slate-50"
               >
                 News
-              </a>
+              </Link>
 
               {/* About Developer link next to it */}
-              <a
+              <Link
                 href="/about-developer"
                 className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#CC5A37] transition-colors rounded-lg hover:bg-slate-50"
               >
                 About Developer
-              </a>
+              </Link>
             </div>
 
             {/* Desktop CTA */}
@@ -179,7 +180,7 @@ export function Navbar() {
                       {dropdownItems.map((item) => {
                         const Icon = item.icon;
                         return (
-                          <a
+                          <Link
                             key={item.label}
                             href={item.href}
                             onClick={() => {
@@ -192,7 +193,7 @@ export function Navbar() {
                               <Icon className="w-4 h-4" />
                             </div>
                             <span className="text-sm font-semibold text-slate-700">{item.label}</span>
-                          </a>
+                          </Link>
                         );
                       })}
                     </motion.div>
@@ -201,22 +202,22 @@ export function Navbar() {
               </div>
 
               {/* Mobile News Link */}
-              <a
+              <Link
                 href="/news"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-4 py-3 text-base font-medium text-slate-600 hover:text-[#CC5A37] hover:bg-slate-50 rounded-xl transition-colors"
               >
                 News
-              </a>
+              </Link>
 
               {/* Mobile About Developer Link */}
-              <a
+              <Link
                 href="/about-developer"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-4 py-3 text-base font-medium text-slate-600 hover:text-[#CC5A37] hover:bg-slate-50 rounded-xl transition-colors"
               >
                 About Developer
-              </a>
+              </Link>
 
               <div className="pt-4 space-y-3 border-t border-slate-100 mt-4">
                 <Button variant="outline" size="md" className="w-full" href="/auth" onClick={() => setIsMobileMenuOpen(false)}>Masuk</Button>

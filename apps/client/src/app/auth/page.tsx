@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Wallet, ArrowLeft, Shield, Sparkles, Cloud, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
+import Link from 'next/link';
 
 export default function AuthPage() {
   const benefits = [
@@ -42,12 +43,12 @@ export default function AuthPage() {
           custom={0}
           className="text-center"
         >
-          <a href="/" className="inline-flex items-center gap-2.5 group justify-center">
+          <Link href="/" className="inline-flex items-center gap-2.5 group justify-center">
             <div className="w-10 h-10 bg-[#CC5A37] rounded-xl flex items-center justify-center shadow-lg shadow-[#CC5A37]/20 group-hover:shadow-[#CC5A37]/40 transition-shadow">
               <Wallet className="w-5.5 h-5.5 text-white" />
             </div>
             <span className="text-2xl font-serif font-bold text-slate-900 tracking-tight">MoneyFlow</span>
-          </a>
+          </Link>
         </motion.div>
 
         {/* Auth Card */}
@@ -132,23 +133,25 @@ export default function AuthPage() {
           custom={0.2}
           className="flex flex-col items-center gap-6"
         >
-          <a
+          <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Kembali ke Beranda
-          </a>
+          </Link>
 
-          <div className="flex items-center gap-4 text-xs text-slate-400 font-medium">
-            <a href="/privacy" className="hover:text-slate-600 transition-colors">
+          <p className="text-[10px] text-slate-400 font-medium">
+            Dengan masuk, Anda menyetujui{' '}
+            <Link href="/privacy" className="hover:text-slate-600 transition-colors">
               Kebijakan Privasi
-            </a>
-            <span className="w-1 h-1 rounded-full bg-slate-350" />
-            <a href="/terms" className="hover:text-slate-600 transition-colors">
+            </Link>{' '}
+            dan{' '}
+            <Link href="/terms" className="hover:text-slate-600 transition-colors">
               Syarat & Ketentuan
-            </a>
-          </div>
+            </Link>{' '}
+            kami.
+          </p>
         </motion.div>
       </div>
     </main>

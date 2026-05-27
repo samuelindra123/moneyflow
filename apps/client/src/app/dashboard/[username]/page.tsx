@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Wallet, LogOut, Loader2, ArrowRight, ShieldCheck, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
+import Link from 'next/link';
 
 export default function DashboardPage({ params }: { params: Promise<{ username: string }> }) {
   const resolvedParams = use(params);
@@ -105,12 +106,12 @@ export default function DashboardPage({ params }: { params: Promise<{ username: 
       {/* Dashboard Top Header Nav */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 shadow-sm px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between h-16 sm:h-20">
-          <a href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="w-9 h-9 bg-[#CC5A37] rounded-xl flex items-center justify-center shadow-lg shadow-[#CC5A37]/20">
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-serif font-bold text-slate-900 tracking-tight">MoneyFlow</span>
-          </a>
+          </Link>
 
           <div className="flex items-center gap-4">
             <button

@@ -1,6 +1,7 @@
 'use client';
 
 import { Wallet, Heart, Mail } from 'lucide-react';
+import Link from 'next/link';
 
 export function Footer() {
   return (
@@ -9,12 +10,12 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 pb-12 border-b border-slate-900">
           {/* Left Brand info */}
           <div className="space-y-4 max-w-md text-left">
-            <a href="#" className="flex items-center gap-2 group w-fit">
+            <Link href="/" className="flex items-center gap-2 group w-fit">
               <div className="w-9 h-9 bg-[#CC5A37] rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/10 group-hover:shadow-orange-500/30 transition-shadow">
                 <Wallet className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-serif font-bold text-white tracking-tight">MoneyFlow</span>
-            </a>
+            </Link>
             <p className="text-sm text-slate-400 leading-relaxed">
               Sebuah proyek personal kecil untuk membantu kamu mencatat keuangan harian dengan lebih bersih, teratur, dan 100% aman.
             </p>
@@ -34,12 +35,12 @@ export function Footer() {
               </svg>
               Twitter
             </a>
-            <a href="/privacy" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
+            <Link href="/privacy" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
               Kebijakan Privasi
-            </a>
-            <a href="/terms" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
+            </Link>
+            <Link href="/terms" className="inline-flex items-center text-xs text-slate-400 hover:text-white transition-colors font-medium">
               Syarat & Ketentuan
-            </a>
+            </Link>
             <a href="mailto:samuel@moneyflow.com" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors font-medium">
               <Mail className="w-4 h-4" />
               Hubungi Kreator
