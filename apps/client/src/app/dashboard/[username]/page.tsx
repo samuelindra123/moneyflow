@@ -7,11 +7,22 @@ import { Button } from '@/components/ui/button';
 import { fadeInUp } from '@/lib/animations';
 import Link from 'next/link';
 
+interface DashboardUserData {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  age: number;
+  reason_using: string | null;
+  member_since: string;
+}
+
 export default function DashboardPage({ params }: { params: Promise<{ username: string }> }) {
   const resolvedParams = use(params);
   const usernameParam = resolvedParams.username;
 
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<DashboardUserData | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   
@@ -41,8 +52,8 @@ export default function DashboardPage({ params }: { params: Promise<{ username: 
         }
 
         setUserData(result.data);
-      } catch (err: any) {
-        setErrorMsg(err.message || 'Gagal memuat data dashboard.');
+      } catch (err: unknown) {
+        setErrorMsg(err instanceof Error ? err.message : 'Gagal memuat data dashboard.');
       } finally {
         setIsLoading(false);
       }
@@ -101,6 +112,16 @@ export default function DashboardPage({ params }: { params: Promise<{ username: 
       })
     : '';
 
+  const avatarFallbackInitials = (() => {
+    const fullName = (userData?.full_name || userData?.username || 'MF').trim();
+    const parts = fullName.split(/\s+/).filter(Boolean);
+    const initials = parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('');
+    return initials || 'MF';
+  })();
+
+  const avatarSrc = userData?.avatar_url || '';
+  const showAvatarImage = Boolean(avatarSrc) && !avatarError;
+
   return (
     <>
       {/* Dashboard Top Header Nav */}
@@ -156,12 +177,19 @@ export default function DashboardPage({ params }: { params: Promise<{ username: 
               className="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col items-center text-center space-y-6"
             >
               <div className="relative group w-28 h-28 rounded-2xl overflow-hidden border border-slate-200 shadow-inner">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={userData?.avatar_url || 'https://via.placeholder.com/150'}
-                  alt={userData?.full_name}
-                  className="w-full h-full object-cover"
-                />
+                {showAvatarImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarSrc}
+                    alt={userData?.full_name || userData?.username || 'Avatar pengguna'}
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#CC5A37] to-[#E5954B] text-white text-2xl font-serif font-bold tracking-tight">
+                    {avatarFallbackInitials}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1">

@@ -40,7 +40,7 @@ export class UploadsService {
     );
 
     const baseUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
-    const publicUrl = `${baseUrl}/${bucket}/${filename}`;
+    const publicUrl = `${baseUrl}/${bucket}/objects/${filename}`;
 
     this.logger.log(`Avatar uploaded: ${filename}`);
     return publicUrl;
@@ -50,7 +50,7 @@ export class UploadsService {
     try {
       const bucket = this.configService.getOrThrow<string>('INSFORGE_S3_BUCKET_AVATARS');
       const baseUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
-      const key = avatarUrl.replace(`${baseUrl}/${bucket}/`, '');
+      const key = avatarUrl.replace(`${baseUrl}/${bucket}/objects/`, '');
 
       await this.s3Client.send(
         new DeleteObjectCommand({

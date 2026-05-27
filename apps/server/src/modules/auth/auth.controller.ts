@@ -120,7 +120,7 @@ export class AuthController {
 
     const callbackUrl = this.configService.getOrThrow<string>('GOOGLE_CALLBACK_URL');
     const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
-    const insforgeBaseUrl = storageUrl.split('/storage/')[0];
+    const insforgeBaseUrl = new URL(storageUrl).origin;
 
     const initiateUrl = `${insforgeBaseUrl}/api/auth/oauth/google?redirect_uri=${encodeURIComponent(callbackUrl)}&code_challenge=${codeChallenge}`;
     
@@ -160,7 +160,7 @@ export class AuthController {
     }
 
     const storageUrl = this.configService.getOrThrow<string>('INSFORGE_PUBLIC_STORAGE_URL');
-    const insforgeBaseUrl = storageUrl.split('/storage/')[0];
+    const insforgeBaseUrl = new URL(storageUrl).origin;
 
     // Exchange code for profile
     const exchangeResponse = await fetch(
